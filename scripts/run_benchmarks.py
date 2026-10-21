@@ -52,6 +52,7 @@ def run_auditable_validation_benchmark():
     meta = payload["benchmark_metadata"]
 
     print(f"Benchmark:               {meta['benchmark']}")
+    print(f"Validation Proxy Formula:{meta.get('validation_proxy_formula', 'S = 0.85 * J_edge_adj + 0.15 * J_div')}")
     print(f"Optical Anisotropy:      gamma = {meta['anisotropic_voxel_scale_um']['anisotropy_ratio']:.1f}:1 "
           f"(sz = {meta['anisotropic_voxel_scale_um']['z']} um, sxy = {meta['anisotropic_voxel_scale_um']['x']} um)")
     print(f"Metric Matching Radius:  R_match = {meta['metric_matching_tolerance_um']} um (physical space)")
@@ -85,6 +86,16 @@ def run_auditable_validation_benchmark():
         prop_edges.append(p["adj_edge_jaccard"])
         base_divs.append(b["division_jaccard"])
         prop_divs.append(p["division_jaccard"])
+        # Mathematical concordance verification (S = 0.85 * J_edge + 0.15 * J_div)
+        expected_b_proxy = 0.85 * b["adj_edge_jaccard"] + 0.15 * b["division_jaccard"]
+        expected_p_proxy = 0.85 * p["adj_edge_jaccard"] + 0.15 * p["division_jaccard"]
+        assert abs(expected_b_proxy - b["validation_proxy"]) < 1e-3, (
+            f"Baseline proxy mismatch for {sid}: expected {expected_b_proxy:.4f}, got {b['validation_proxy']:.4f}"
+        )
+        assert abs(expected_p_proxy - p["validation_proxy"]) < 1e-3, (
+            f"Proposed proxy mismatch for {sid}: expected {expected_p_proxy:.4f}, got {p['validation_proxy']:.4f}"
+        )
+
         base_proxies.append(b["validation_proxy"])
         prop_proxies.append(p["validation_proxy"])
 

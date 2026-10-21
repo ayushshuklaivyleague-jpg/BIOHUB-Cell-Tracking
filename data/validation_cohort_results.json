@@ -14,6 +14,12 @@
       "macro_average": "Unweighted arithmetic mean of metrics across the 8 embryo series",
       "micro_average": "Pooled event totals across all series: J_div = sum(TP) / (sum(TP) + sum(FP) + sum(FN))"
     },
+    "validation_proxy_formula": {
+      "expression": "S = 0.85 * J_edge_adj + 0.15 * J_div",
+      "edge_weight": 0.85,
+      "division_weight": 0.15,
+      "description": "Standard linear composite proxy weighting adjusted edge survival Jaccard at 85% and cytokinesis division Jaccard at 15%"
+    },
     "statistical_tests": {
       "division_jaccard_wilcoxon": {
         "test": "Two-tailed paired Wilcoxon signed-rank test on non-zero differences",

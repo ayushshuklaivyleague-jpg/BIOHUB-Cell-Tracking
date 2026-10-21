@@ -168,94 +168,70 @@ class BiohubResearchMetrics:
         gt_to_pred: Dict[int, int],
     ) -> Tuple[int, int, int]:
         """
-        Compute cytokinesis division TP, FP, FN.
-        A division is counted as TP if both daughter lineages originate from the matched mother cell.
+        Compute cytokinesis division confusion matrix (TP, FP, FN) with strict biological matching.
+
+        A predicted division is a predicted node u with out-degree >= 2.
+        A ground-truth division is a ground-truth node u* with out-degree >= 2.
+
+        Strict Biological Verification Criteria:
+          1. Mother Verification: The predicted mother u must match the true mother u* (pred_to_gt[u] == u*).
+          2. Daughter Verification: At least 2 predicted daughters from pred_out[u] must match distinct
+             true daughters from gt_out[u*] via bipartite node matching.
+          3. 1-to-1 Mapping: Each ground-truth division event u* can be claimed by at most one predicted division.
+
+        False Positives (FP):
+          Any predicted branching event (out-degree >= 2) that fails to match an unclaimed ground-truth division:
+            - Branching at an unmapped node (pred_to_gt[u] is None).
+            - Branching at a non-dividing node (u* has out-degree <= 1).
+            - Branching where fewer than 2 daughters match the true daughter set.
+            - Duplicate predicted branches claiming an already matched ground-truth division.
+
+        False Negatives (FN):
+          Any ground-truth division event that was not claimed by a valid TP prediction:
+            FN = len(gt_division_mothers) - TP.
         """
         gt_out: Dict[int, Set[int]] = {}
-        gt_in: Dict[int, int] = {}
         for s, t in gt_edges:
             gt_out.setdefault(s, set()).add(t)
-            gt_in[t] = s
 
         pred_out: Dict[int, Set[int]] = {}
         for s, t in pred_edges:
             pred_out.setdefault(s, set()).add(t)
 
-        pred_node_ids = list(pred_nodes.keys())
-        components = self.weakly_connected_components(pred_node_ids, pred_edges)
-        fork_components = {
-            components[n] for n, outs in pred_out.items() if len(outs) >= 2 and n in components
-        }
-        gt_division_sources = [s for s, outs in gt_out.items() if len(outs) >= 2]
-
-        def lineage_descendants(root_child: int) -> Set[int]:
-            seen = {root_child}
-            stack = [root_child]
-            while stack:
-                cur = stack.pop()
-                for nxt in gt_out.get(cur, set()):
-                    if nxt not in seen:
-                        seen.add(nxt)
-                        stack.append(nxt)
-            return seen
+        gt_division_mothers = {s: outs for s, outs in gt_out.items() if len(outs) >= 2}
+        pred_division_mothers = {s: outs for s, outs in pred_out.items() if len(outs) >= 2}
 
         tp = 0
-        fn = 0
-        tp_gt_sources: Set[int] = set()
-
-        for gsrc in gt_division_sources:
-            children = sorted(gt_out[gsrc])
-            if len(children) < 2:
-                continue
-            anchor_candidates = [gsrc]
-            if gsrc in gt_in:
-                anchor_candidates.append(gt_in[gsrc])
-            anchor_pred_nodes = [gt_to_pred[a] for a in anchor_candidates if a in gt_to_pred]
-
-            lineage_hit_components: List[Set[int]] = []
-            ok = True
-            for child in children[:2]:
-                lineage = lineage_descendants(child)
-                hit_comp_ids = {
-                    components[p_id]
-                    for gt_id in lineage
-                    if (p_id := gt_to_pred.get(gt_id)) is not None and p_id in components
-                }
-                if not hit_comp_ids:
-                    ok = False
-                    break
-                lineage_hit_components.append(hit_comp_ids)
-
-            if not ok or not anchor_pred_nodes:
-                fn += 1
-                continue
-
-            anchor_comp_ids = {components[p] for p in anchor_pred_nodes if p in components}
-            if not anchor_comp_ids:
-                fn += 1
-                continue
-
-            found = any(
-                comp_id in lineage_hit_components[0]
-                and comp_id in lineage_hit_components[1]
-                and comp_id in fork_components
-                for comp_id in anchor_comp_ids
-            )
-            if found:
-                tp += 1
-                tp_gt_sources.add(gsrc)
-            else:
-                fn += 1
-
         fp = 0
-        for n, outs in pred_out.items():
-            if len(outs) < 2:
-                continue
-            g = pred_to_gt.get(n)
-            if g is None or g not in gt_out or g in tp_gt_sources:
-                continue
-            fp += 1
+        claimed_gt_divisions: Set[int] = set()
 
+        for u_pred, d_pred in pred_division_mothers.items():
+            u_gt = pred_to_gt.get(u_pred)
+
+            # Case 1: Predicted mother is unmapped or does not correspond to a ground-truth division
+            if u_gt is None or u_gt not in gt_division_mothers:
+                fp += 1
+                continue
+
+            # Case 2: Ground-truth division was already claimed by an earlier predicted branch
+            if u_gt in claimed_gt_divisions:
+                fp += 1
+                continue
+
+            # Case 3: Check daughter correspondence
+            true_daughters = gt_division_mothers[u_gt]
+            matched_daughters = {
+                pred_to_gt[v] for v in d_pred
+                if v in pred_to_gt and pred_to_gt[v] in true_daughters
+            }
+
+            if len(matched_daughters) >= 2:
+                tp += 1
+                claimed_gt_divisions.add(u_gt)
+            else:
+                fp += 1
+
+        fn = len(gt_division_mothers) - tp
         return tp, fp, fn
 
     def evaluate_lineage(
@@ -264,9 +240,15 @@ class BiohubResearchMetrics:
         pred_edges: List[Tuple[int, int]],
         gt_nodes: Dict[int, Tuple[float, float, float, float]],
         gt_edges: List[Tuple[int, int]],
+        weight_edge: float = 0.85,
+        weight_div: float = 0.15,
     ) -> Dict[str, float]:
         """
         Execute comprehensive benchmark evaluation.
+
+        Args:
+            weight_edge: Weight for adjusted edge Jaccard in validation proxy (default 0.85).
+            weight_div: Weight for division Jaccard in validation proxy (default 0.15).
         """
         pred_to_gt, gt_to_pred = self.match_nodes_bipartite(pred_nodes, gt_nodes)
         edge_tp, edge_fp, edge_fn = self.compute_edge_confusion(pred_edges, gt_edges, pred_to_gt, gt_to_pred)
@@ -280,8 +262,8 @@ class BiohubResearchMetrics:
 
         node_ratio = float(len(pred_nodes) / max(1, len(gt_nodes)))
 
-        # Composite validation proxy score
-        proxy_score = float(0.70 * adj_edge_jaccard + 0.30 * div_jaccard)
+        # Composite validation proxy score: S = 0.85 * J_edge + 0.15 * J_div
+        proxy_score = float(weight_edge * adj_edge_jaccard + weight_div * div_jaccard)
 
         return {
             "edge_tp": edge_tp,
