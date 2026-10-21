@@ -184,9 +184,7 @@ BIOHUB-Cell-Tracking/
 ├── .gitignore                               # Git configuration
 │
 ├── paper/                                   # 📄 Formal Scientific Manuscript
-│   ├── RESEARCH_PAPER_BIOHUB_CELL_TRACKING.pdf   # Publication-grade Retina PDF (1.07 MB, with vector SVG figures)
-│   ├── RESEARCH_PAPER_BIOHUB_CELL_TRACKING.md    # Complete scientific markdown manuscript
-│   └── RESEARCH_PAPER_BIOHUB_CELL_TRACKING.html  # High-resolution interactive HTML manuscript
+│   └── RESEARCH_PAPER_BIOHUB_CELL_TRACKING.pdf   # Publication-grade Retina PDF (1.08 MB, with vector SVG figures)
 │
 ├── notebooks/                               # 📓 Production & Submission Notebooks
 │   ├── WINNING_NOTEBOOK.ipynb               # 🌟 Canonical verified winning submission notebook (26 cells)
