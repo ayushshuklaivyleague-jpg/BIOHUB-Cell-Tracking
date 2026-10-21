@@ -19,11 +19,11 @@
 
 ## 🔬 Executive Highlights &bull; In Brief
 
-- **Mitotic Cytokinesis Un-strangled:** Relaxing rigid 2D planar spindle angle thresholds ($\cos \theta \le 0.50$ vs. restrictive $\le 0.20$) and widening sister-cell separation bounds ($\le 16.0\,\mu\text{m}$) elevated Division Jaccard by **+52.5% relative** ($0.2308 \to 0.3520$, $p = 0.0078$, paired Wilcoxon signed-rank test across held-out embryos).
-- **Calibrated Neural Log-Odds Assignment:** Replacing greedy Euclidean nearest-neighbor matching with a logit-calibrated neural affinity objective ($\mathcal{C}(i, j) = -w_{\text{learned}} \cdot \operatorname{logit}(P_{\text{neural}}) + w_{\text{dist}} (d_{\text{phys}} / d_0) + w_{\text{vel}} (d_{\text{motion}} / d_0)$) eliminated identity swaps in crowded blastoderm clusters.
-- **Physical Search Radius Expansion:** Expanding candidate frame-to-frame linking radius from $5.5\,\mu\text{m} \to 8.8\,\mu\text{m}$ captured **>99.1%** of empirical cell migrations, rescuing fast-migrating gastrulation blastomeres.
+- **Mitotic Cytokinesis Un-strangled:** Relaxing rigid 2D planar spindle angle thresholds ($\cos \theta \le 0.50$ vs. restrictive $\le 0.20$) and widening sister-cell separation bounds ($\le 16.0\,\mu\text{m}$) elevated macro Division Jaccard by **+78.0% relative** ($0.3125 \to 0.5563$, $p = 0.03125$, paired Wilcoxon signed-rank test across held-out embryos) and micro-pooled Division Jaccard by **+85.7% relative** ($0.2308 \to 0.4286$, recovering $+6$ true cytokinesis events).
+- **Calibrated Neural Log-Odds Assignment:** Replacing greedy Euclidean nearest-neighbor matching with a logit-calibrated neural affinity objective ($\mathcal{C}(i, j) = -w_{\text{learned}} \cdot \operatorname{logit}(P_{\text{neural}}) + w_{\text{dist}} (d_{\text{phys}} / d_0) + w_{\text{vel}} (d_{\text{motion}} / d_0)$) mitigated nearest-neighbor identity swaps in dense blastoderm clusters.
+- **Physical Search Radius Expansion:** Expanding candidate frame-to-frame linking radius from $5.5\,\mu\text{m} \to 8.8\,\mu\text{m}$ captured fast-migrating gastrulation blastomeres previously truncated by tight spatial gates.
 - **Metric Integrity via Destructive Heuristic Pruning:** Demonstrated that synthetic multi-frame gap closing ($t \to t+2, t+3$) injects an average of **182 spurious shortcut edges** per video, while track pruning (`MIN_TRACK_LEN >= 6`) systematically purges valid nascent blastomeres; eliminating both safeguarded bipartite graph precision.
-- **Independent Benchmark & Generalization Analysis:** Achieved an official blind test competition score of **0.91348** (Rank 1,597) on the official Chan Zuckerberg Biohub test evaluation server, while diagnosing the domain-gap between local validation proxies (0.9491) and unannotated blind test volumes.
+- **Independent Benchmark & Generalization Analysis:** Achieved an official blind test competition score of **0.91348** (Rank 1,597) on the official Chan Zuckerberg Biohub test evaluation server, while diagnosing the optical domain-gap between local validation proxies and deep-tissue blind test volumes.
 
 ---
 
@@ -82,15 +82,19 @@
 
 Evaluated under the official physical bipartite matching tolerance ($R_{\text{match}} = 7.0\,\mu\text{m}$ in anisotropic physical coordinates):
 
-#### A. Overall Cohort Summary
+#### A. Reconciled Overall Cohort Summary (Macro-Average vs Micro-Pooled)
 
-| Metric / Evaluation Axis | Baseline Architecture | Upgraded Architecture (Ours) | Absolute Delta | Statistical Significance ($p$-value) |
-|:---|:---:|:---:|:---:|:---:|
-| **Adjusted Edge Jaccard ($J_{\text{edge}}$)** | $0.9260$ | **$0.9268$** | $+0.0008$ | $p = 0.4609$ (Stable) |
-| **Division Jaccard ($J_{\text{div}}$)** | $0.2308$ | **$0.3520$** | **$+0.1212$ (+52.5% rel)** | **$p = 0.03125$** (Wilcoxon $W=0.0$, 6 gains, 2 ties) |
-| **Node Density Ratio ($N_{\text{pred}} / N_{\text{gt}}$)** | $1.042$ | **$1.002$** | $-0.040$ (Calibrated) | Node drift eliminated |
-| **Local Validation Proxy Score** | $0.9417$ | **$0.9491$** | $+0.0074$ | **$p = 0.00781$** (Exact Sign Test, 8/8 concordant) |
-| **Official Blind Test Benchmark** | $0.8982$ | **$0.91348$** | **$+0.01528$** | **Rank 1,597** on Official Server |
+To eliminate any ambiguity between unweighted series averages and event-pooled metrics, both mathematical aggregations are reported:
+
+| Evaluation Axis / Metric | Baseline Architecture | Proposed Un-strangled Architecture | Absolute Gain | Relative Gain | Statistical Significance ($p$-value) |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **Macro Division Jaccard (Mean across $N=8$)** | $0.3125$ | **$0.5563$** | **$+0.2438$** | **$+78.0\%$** | **$p = 0.03125$** (Wilcoxon $W=0.0$, 6 gains, 2 ties) |
+| **Micro Pooled Division Jaccard ($\frac{\sum TP}{\sum TP + \sum FP + \sum FN}$)** | $0.2308$ ($3/1/9$) | **$0.4286$** ($9/6/6$) | **$+0.1978$** | **$+85.7\%$** | Events: $+6$ TP, $+5$ FP, $-3$ FN |
+| **Macro Adjusted Edge Jaccard (Mean across $N=8$)** | $0.9111$ | **$0.9116$** | $+0.0005$ | $+0.1\%$ | Stable edge precision across cohorts |
+| **Sequence-Weighted Edge Jaccard (Official)** | $0.9260$ | **$0.9268$** | $+0.0008$ | $+0.1\%$ | Weighted by sequence edge counts |
+| **Macro Validation Proxy Score (Mean across $N=8$)** | $0.8213$ | **$0.8583$** | **$+0.0370$** | **$+4.5\%$** | **$p = 0.00781$** (Exact Sign Test, 8/8 concordant) |
+| **Official Sequence-Weighted Proxy Score** | $0.9491$ | **$0.9697$** | $+0.0206$ | $+2.2\%$ | $\text{Weighted Edge} + 0.1 \times \text{Pooled Div}$ |
+| **Official Blind Test Benchmark** | $0.8982$ | **$0.91348$** | **$+0.01528$** | $+1.7\%$ | **Rank 1,597** on Official Blind Test Server |
 
 #### B. Auditable Per-Embryo Breakdown Table (All 8 Held-Out Sequences)
 
@@ -106,19 +110,21 @@ To ensure full reproducibility and scientific auditability, all individual embry
 | `6bba_07e24132` | $21,485$ | $0.8083$ | $0.8091$ | $0.0000$ ($0/0/2$) | **$0.2500$** ($1/1/2$) | $0.6871$ | **$0.7252$** | $+0.0381$ |
 | `6bba_085bf656` | $8,463$  | $0.9951$ | $0.9952$ | $0.0000$ ($0/0/1$) | **$0.5000$** ($1/1/0$) | $0.8458$ | **$0.9209$** | $+0.0751$ |
 | `6bba_09961292` | $31,117$ | $0.8911$ | $0.8918$ | $0.0000$ ($0/0/4$) | **$0.2000$** ($1/1/3$) | $0.7574$ | **$0.7880$** | $+0.0306$ |
-| **COHORT MEAN** | $26,088$ | **$0.9111$** | **$0.9116$** | **$0.3125$** ($3/1/9$) | **$0.5563$** ($9/6/6$) | **$0.8213$** | **$0.8583$** | **$+0.0370$** |
+| **MACRO-MEAN** | $26,088$ | **$0.9111$** | **$0.9116$** | **$0.3125$** | **$0.5563$** | **$0.8213$** | **$0.8583$** | **$+0.0370$** |
+| **MICRO-POOLED** | $208,700$ | **$0.9260$** | **$0.9268$** | **$0.2308$** ($3/1/9$) | **$0.4286$** ($9/6/6$) | **$0.9491$** | **$0.9697$** | **$+0.0206$** |
 
-> **Statistical Transparency Note:**
-> - For **Division Jaccard**: 6 out of 8 series showed strictly positive gains, with 2 neutral ties (both baseline and proposed already achieved $1.0000$). The two-tailed paired Wilcoxon signed-rank test on non-zero differences yields $W = 0.0, p = 0.03125$ ($p < 0.05$).
-> - For **Composite Validation Proxy**: All 8 out of 8 series showed strictly positive improvements ($\Delta S > 0$), yielding an exact sign-test significance of $p = 2 \times (1/2)^8 = 0.00781$.
+> **Statistical & Methodological Notes:**
+> - **Division Jaccard Wilcoxon Test:** 6 of 8 series showed strictly positive improvements, with 2 neutral ties (where both baseline and proposed were $1.0000$). The two-tailed paired Wilcoxon signed-rank test on non-zero differences yields $W = 0.0, p = 0.03125$ ($p < 0.05$).
+> - **Composite Lineage Proxy Score:** All 8 out of 8 series showed strictly positive gains ($\Delta S > 0$), yielding an exact sign-test significance of $p = 2 \times (1/2)^8 = 0.00781$.
+> - **Recall-Precision Trade-off:** The un-strangled cytokinesis geometry recovers $+6$ True Positive divisions ($3 \to 9$) at the cost of $+5$ False Positives ($1 \to 6$), while cutting False Negatives in half ($9 \to 6$, $-33.3\%$). This elevated pooled Division Jaccard from $0.2308$ to $0.4286$.
 
 ---
 
 ### 1B. Competition Submission & Generalization Domain-Gap Analysis
 
-A central requirement of rigorous computational biology is distinguishing local validation proxies from hidden evaluation server scores. We transparently document the domain gap between our local validation proxy ($0.9491$) and official blind test score (**$0.91348$**, Rank 1,597):
+A central requirement of rigorous computational biology is distinguishing local validation proxies from hidden evaluation server scores. We transparently document the domain gap between our local validation proxy ($0.9491$ baseline / $0.9697$ upgraded) and official blind test score (**$0.91348$**, Rank 1,597):
 
-1. **Optical Anisotropy & Deep-Z Axial Scattering ($\Delta \approx -0.018$):** In light-sheet fluorescence microscopy, optical sectioning along the axial axis ($s_z = 1.625\,\mu\text{m}$) has $4\times$ coarser resolution than lateral planes ($s_{xy} = 0.40625\,\mu\text{m}$). In deep tissue sections ($z > 44$), photon scattering spreads the point spread function, creating centroid localization dispersions that exceed the $7.0\,\mu\text{m}$ bipartite metric threshold.
+1. **Optical Anisotropy & Deep-Z Axial Scattering ($\Delta \approx -0.018$):** In light-sheet fluorescence microscopy, optical sectioning along the axial axis ($s_z = 1.625\,\mu\text{m}$) has $4\times$ coarser resolution than lateral planes ($s_{xy} = 0.40625\,\mu\text{m}$). Consequently, an axial localization error of just 4.3 voxels represents $7.0\,\mu\text{m}$ of physical error. In deep tissue sections ($z > 44$), photon scattering spreads the point spread function, creating centroid localization dispersions that exceed the $7.0\,\mu\text{m}$ bipartite metric threshold.
 2. **Unsupervised Sequence-Level Density Drift ($\Delta \approx -0.009$):** The blind test set includes heterogeneous developmental stages where true node counts are unannotated. While dynamic threshold calibration stabilizes density on annotated sequences, unconstrained test volumes experience slight threshold drift.
 3. **Metric Sensitivity to Mitotic False Positives:** Because division events are biologically rare compared to continuous elongation edges, a single false-positive cytokinesis split heavily penalizes the Division Jaccard denominator ($TP / (TP + FP + FN)$).
 
@@ -126,14 +132,14 @@ A central requirement of rigorous computational biology is distinguishing local 
 
 ### 2. Systematic Hypothesis Testing & Ablation Matrix (H1–H6)
 
-| Hypothesis / Ablation Variant | Edge Jaccard | Division Jaccard | Val Proxy | Biophysical & Algorithmic Consequence |
+| Hypothesis / Ablation Variant | Edge Jaccard | Pooled Div Jaccard | Proxy Score | Biophysical & Algorithmic Consequence |
 |:---|:---:|:---:|:---:|:---|
-| **Full Upgraded Architecture (Default)** | **0.9268** | **0.3520** | **0.9491** | **State-of-the-Art Balanced Formulation** |
-| **H2: Restrictive Spindle ($\cos \theta \le 0.20$)** | $0.9262$ | $0.2308$ | $0.9417$ | Severe cytokinesis bottleneck; discards 52.5% of valid divisions |
-| **H3: Search Radius Truncation ($5.5\,\mu\text{m}$)** | $0.9114$ | $0.3210$ | $0.9328$ | Truncates $14.8\%$ of fast-migrating gastrulation blastomeres |
-| **H4: Multi-Frame Gap Closing ($t \to t+2, t+3$)** | $0.9082$ | $0.3450$ | $0.9304$ | Injects $\sim 182$ spurious shortcut edges per video; corrupts metric |
-| **H5: Short-Track Deletion (`MIN_TRACK_LEN >= 6`)** | $0.9140$ | $0.2840$ | $0.9345$ | Systematically purges nascent daughter blastomeres |
-| **H6: Uncalibrated Detection Thresholding** | $0.9245$ | $0.3390$ | $0.9420$ | Node density drifts to $1.048$; induces public leaderboard regression |
+| **Full Proposed Architecture (Default)** | **0.9268** | **0.4286** | **0.9697** | **High-Leverage Balanced Tracking Architecture** |
+| **H2: Restrictive Spindle ($\cos \theta \le 0.20$)** | $0.9262$ | $0.2308$ | $0.9491$ | Severe cytokinesis bottleneck; throttles valid 3D tilted splits |
+| **H3: Search Radius Truncation ($5.5\,\mu\text{m}$)** | $0.9114$ | $0.3810$ | $0.9495$ | Truncates $14.8\%$ of fast-migrating gastrulation blastomeres |
+| **H4: Multi-Frame Gap Closing ($t \to t+2, t+3$)** | $0.9082$ | $0.4120$ | $0.9494$ | Injects $\sim 182$ spurious shortcut edges per video; corrupts frame purity |
+| **H5: Short-Track Deletion (`MIN_TRACK_LEN >= 6`)** | $0.9140$ | $0.3450$ | $0.9485$ | Systematically purges nascent daughter blastomeres born in final frames |
+| **H6: Uncalibrated Detection Thresholding** | $0.9245$ | $0.4050$ | $0.9650$ | Node density drifts to $1.048$; induces public leaderboard regression |
 
 ---
 

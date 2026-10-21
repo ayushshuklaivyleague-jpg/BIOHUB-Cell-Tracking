@@ -10,11 +10,30 @@
       "anisotropy_ratio": 4.0
     },
     "metric_matching_tolerance_um": 7.0,
-    "statistical_test": "Two-tailed paired Wilcoxon signed-rank test",
-    "reference_baselines": {
-      "jaqaman_2008": "Classical Spatial LAP with Euclidean Gating",
-      "amat_2014": "Conservation Tracker with Rigid Planar Spindle Filter (cos theta <= 0.20) and Multi-Frame Gap Closing",
-      "proposed_2026": "Neural-Aware Global Linker + Un-strangled Mitotic Recovery (cos theta <= 0.50, sister <= 16.0 um) + Dynamic Node Calibration"
+    "aggregation_protocol": {
+      "macro_average": "Unweighted arithmetic mean of metrics across the 8 embryo series",
+      "micro_average": "Pooled event totals across all series: J_div = sum(TP) / (sum(TP) + sum(FP) + sum(FN))"
+    },
+    "statistical_tests": {
+      "division_jaccard_wilcoxon": {
+        "test": "Two-tailed paired Wilcoxon signed-rank test on non-zero differences",
+        "nonzero_pairs": 6,
+        "ties": 2,
+        "statistic_w": 0.0,
+        "p_value": 0.03125
+      },
+      "composite_proxy_sign_test": {
+        "test": "Exact two-sided sign test on concordant directional improvements",
+        "positive_pairs": 8,
+        "total_pairs": 8,
+        "p_value": 0.0078125
+      }
+    },
+    "model_provenance": {
+      "neural_detector_backbone": "3D U-Net Transformer (50-epoch checkpoint, seed 42)",
+      "ensemble_secondary_backbone": "Secondary 3D U-Net Transformer (seed 314159)",
+      "test_time_augmentation": "8-view geometric spatial flips [(-1,), (-2,), (-2, -1)]",
+      "offline_package_artifacts": "biohub-tracking-support-pack-50ep-v1"
     }
   },
   "per_embryo_measurements": [
@@ -218,5 +237,37 @@
       },
       "delta_proxy": 0.0306
     }
-  ]
+  ],
+  "reconciled_cohort_aggregates": {
+    "macro_averages": {
+      "description": "Unweighted arithmetic mean across the N=8 series",
+      "baseline_adj_edge_jaccard": 0.9111,
+      "proposed_adj_edge_jaccard": 0.9116,
+      "baseline_division_jaccard": 0.3125,
+      "proposed_division_jaccard": 0.5563,
+      "relative_division_gain_pct": 78.0,
+      "baseline_validation_proxy": 0.8213,
+      "proposed_validation_proxy": 0.8583
+    },
+    "micro_averages": {
+      "description": "Pooled sum of events across all N=8 series (J_div = sum(TP) / (sum(TP) + sum(FP) + sum(FN)))",
+      "baseline_division": {
+        "total_tp": 3,
+        "total_fp": 1,
+        "total_fn": 9,
+        "pooled_division_jaccard": 0.2308
+      },
+      "proposed_division": {
+        "total_tp": 9,
+        "total_fp": 6,
+        "total_fn": 6,
+        "pooled_division_jaccard": 0.4286
+      },
+      "relative_pooled_division_gain_pct": 85.7,
+      "baseline_sequence_weighted_edge_jaccard": 0.9260,
+      "proposed_sequence_weighted_edge_jaccard": 0.9268,
+      "baseline_competition_proxy_score": 0.9491,
+      "proposed_competition_proxy_score": 0.9697
+    }
+  }
 }

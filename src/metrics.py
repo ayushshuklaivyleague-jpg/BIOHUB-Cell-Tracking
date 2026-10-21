@@ -1,11 +1,16 @@
 """
-Official Biohub Evaluation Metrics Suite for 4D Cell Tracking.
+Biohub Research Metrics Suite for 4D Cell Tracking.
 Implements:
   1. Anisotropic Physical-Space Bipartite Matching (max_dist = 7.0 um).
   2. Edge Confusion Matrix & Adjusted Edge Jaccard.
   3. Mitotic Division Confusion Matrix & Division Jaccard.
   4. Error Mass Decomposition (Detection vs Fragmentation vs Association).
   5. Node Density Ratio.
+
+Note on Boundary-Case Handling:
+  In compute_edge_confusion, false positives are identified when a predicted edge connects
+  nodes that map to unmatched biological targets or invalid ground-truth transitions.
+  Adjusted Jaccard penalizes overall prediction count divergence relative to ground-truth targets.
 Author: Ayush Shukla (ayushshuklaivyleague@gmail.com)
 """
 
@@ -17,9 +22,9 @@ from scipy.optimize import linear_sum_assignment
 from src.config import CFG, PHYSICAL_VOXEL_SCALE, METRIC_MATCHING_RADIUS_UM
 
 
-class BiohubEvaluationMetrics:
+class BiohubResearchMetrics:
     """
-    Computes official benchmark metrics for predicted vs ground-truth 4D cell lineage graphs.
+    Computes research validation metrics for predicted vs ground-truth 4D cell lineage graphs.
     """
 
     def __init__(
@@ -291,3 +296,8 @@ class BiohubEvaluationMetrics:
             "node_density_ratio": node_ratio,
             "validation_proxy_score": proxy_score,
         }
+
+
+# Backwards compatibility alias
+BiohubEvaluationMetrics = BiohubResearchMetrics
+

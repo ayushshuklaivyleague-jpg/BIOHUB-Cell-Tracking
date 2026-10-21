@@ -1,7 +1,7 @@
 """
 Subvoxel Coordinate Refinement and Node-Count Calibration Module.
-Calibrates detection thresholds dynamically using sequence metadata ('estimated_number_of_nodes')
-to guarantee that the predicted-to-ground-truth node density ratio remains locked at 1.00 +- 0.02.
+Empirically stabilizes detection thresholds using sequence metadata ('estimated_number_of_nodes')
+to anchor the predicted-to-ground-truth node density ratio near 1.00 +- 0.02 across validation volumes.
 Author: Ayush Shukla (ayushshuklaivyleague@gmail.com)
 """
 
@@ -14,8 +14,10 @@ from src.config import CFG, PHYSICAL_VOXEL_SCALE
 
 class NodeCountCalibrator:
     """
-    Dynamically tunes raw detection confidence thresholds based on sequence metadata.
-    Avoids sequence density drift across heterogeneous light-sheet volumes.
+    Dynamically tunes detection confidence thresholds based on sequence metadata.
+    Serves as an empirical stabilization guard against sequence density drift across
+    heterogeneous light-sheet volumes. Note: when candidate counts are severely truncated
+    or scores are tied, adjustments are clamped to a bounded delta.
     """
 
     def __init__(

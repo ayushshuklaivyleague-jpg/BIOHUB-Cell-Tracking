@@ -1,7 +1,14 @@
 """
 Neural-Aware Global Linker for 4D Spatiotemporal Cell Tracking.
-Replaces naive greedy Euclidean matching with log-odds calibrated neural edge affinities
-constrained by physical search radii and EMA velocity vector persistence.
+Formulates a global bipartite assignment objective combining log-odds calibrated
+neural edge affinities with physical search radii and EMA velocity vector persistence.
+
+Neural Architecture & Provenance:
+  In the full competition pipeline (see notebooks/WINNING_NOTEBOOK.ipynb), edge probabilities
+  P_neural are predicted by a 50-epoch 3D U-Net Transformer backbone with 8-view geometric TTA
+  (artifact: 'biohub-tracking-support-pack-50ep-v1', script: 'predict_unet_transformer.py').
+  Candidate pairs without neural scores default to neutral baseline probability 0.5 (logit = 0),
+  where assignment is governed by physical distance and motion persistence.
 Author: Ayush Shukla (ayushshuklaivyleague@gmail.com)
 """
 
