@@ -278,7 +278,7 @@ If you find this benchmark, tracking architecture, or manuscript helpful in your
 @article{shukla2026biohub,
   title={Tracing 4D Volumetric Embryonic Cell Lineages from Anisotropic Light-Sheet Microscopy: Neural-Aware Global Assignment, Mitotic Recovery, and Physical-Space Validation},
   author={Shukla, Ayush},
-  journal={arXiv preprint},
+  note={Unpublished research manuscript},
   year={2026},
   url={https://github.com/ayushshuklaivyleague-jpg/BIOHUB-Cell-Tracking}
 }
@@ -304,6 +304,16 @@ To ensure complete scientific transparency and provenance, this project builds u
 - **Metric Integrity Guard & Destructive Heuristic Removal**: Conducted empirical ablation demonstrating that multi-frame gap closing ( 	o t+2, t+3$) and aggressive short-track filtering (MIN_TRACK_LEN >= 6) degrade bipartite matching precision by injecting spurious shortcut edges; disabled both in the submission configuration (ENABLE_GAP_CLOSING = False, MIN_TRACK_LEN = 1).
 - **Bidirectional Harmonic Fusion**: Implemented dual-seed harmonic probability aggregation combining primary and secondary temporal UNet3D checkpoints.
 - **Physical Validation Suite & PPSWEEP**: Built the offline 8-embryo bipartite Hungarian validation harness (match_nodes_bipartite, {\text{match}} = 7.0\,\mu	ext{m}$) and the zero-overhead post-processing parameter sweep framework.
+
+
+---
+
+## 🤖 AI-Assisted Development & Engineering Tool Disclosure
+
+In accordance with transparent research and engineering practices:
+- **Development Tools**: Development and experimentation were conducted using Python, PyTorch, and Kaggle GPU notebook environments.
+- **AI Assistance**: LLM-assisted tools (ChatGPT and Antigravity) were utilized for modular code debugging, exploring mathematical formulations, refining test harnesses, reviewing documentation, and drafting explanatory text.
+- **Authorship & Integrity**: All experimental designs, tracking heuristics, validation logic, and metric evaluations were directed and verified by the author. No AI tool is listed as an author or collaborator.
 
 
 ## 📄 License
