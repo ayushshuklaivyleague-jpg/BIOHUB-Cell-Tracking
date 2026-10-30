@@ -50,8 +50,10 @@ class MitoticDivisionRecovery:
         """
         Compute directional cosine between mother-to-daughter vectors:
           cos(theta) = (v1 . v2) / (|v1| * |v2|)
-        For true cleavage, daughter cells separate in opposite directions (cos theta ~ -1).
-        A threshold cos theta <= 0.50 permits up to 120-degree angular deviation in 3D.
+        For true cleavage, daughter cells separate in roughly opposite directions (ideal: theta ~ 180 deg, cos theta ~ -1.0).
+        A threshold cos(theta) <= 0.50 requires theta >= 60 degrees between the two daughter vectors (v1 and v2),
+        thereby rejecting parallel or co-directional false pairings (theta < 60 deg, cos theta > 0.50) while
+        permitting up to 120 degrees of deviation from the ideal antiparallel orientation (180 deg - 60 deg = 120 deg).
         """
         v1 = p_daughter1 - p_mother
         v2 = p_daughter2 - p_mother

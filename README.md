@@ -23,7 +23,7 @@
 - **Calibrated Neural Log-Odds Assignment:** Replacing greedy Euclidean nearest-neighbor matching with a logit-calibrated neural affinity objective ($\mathcal{C}(i, j) = -w_{\text{learned}} \cdot \operatorname{logit}(P_{\text{neural}}) + w_{\text{dist}} (d_{\text{phys}} / d_0) + w_{\text{vel}} (d_{\text{motion}} / d_0)$) mitigated nearest-neighbor identity swaps in dense blastoderm clusters.
 - **Physical Search Radius Expansion:** Expanding candidate frame-to-frame linking radius from $5.5\,\mu\text{m} \to 8.8\,\mu\text{m}$ captured fast-migrating gastrulation blastomeres previously truncated by tight spatial gates.
 - **Metric Integrity via Destructive Heuristic Pruning:** Demonstrated that synthetic multi-frame gap closing ($t \to t+2, t+3$) injects an average of **182 spurious shortcut edges** per video, while track pruning (`MIN_TRACK_LEN >= 6`) systematically purges valid nascent blastomeres; eliminating both safeguarded bipartite graph precision.
-- **Independent Benchmark & Generalization Analysis:** Achieved an official blind test competition score of **0.91348** (Rank 1,597) on the official Chan Zuckerberg Biohub test evaluation server, while diagnosing the optical domain-gap between local validation proxies and deep-tissue blind test volumes.
+- **Independent Benchmark & Generalization Analysis:** Achieved an official blind test competition score of **0.91348** (Official Leaderboard Rank: 1,597; note that internal experiment labels such as Rank 1 denote local candidate configurations) on the official Chan Zuckerberg Biohub test evaluation server, while diagnosing the optical domain-gap between local validation proxies and deep-tissue blind test volumes.
 
 ---
 
