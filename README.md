@@ -294,27 +294,18 @@ If you find this benchmark, tracking architecture, or manuscript helpful in your
 To ensure complete scientific transparency and provenance, this project builds upon open-source bioimage tools and community foundations developed during the **Chan Zuckerberg Biohub Cell Tracking** competition:
 
 ### 1. External & Upstream Foundations
-- **Base Tracking Engine & Pretrained Weights**: This pipeline adapts inference routines and neural checkpoint architectures (pilkwang/biohub-tracking-support-pack-50ep-v1 and pilkwang/biohub-temporal-unet3d-seed314159-v1) under the MIT / Apache 2.0 open-source licenses.
-- **DeepCenter Prior**: Utilizes the 3D cell-center localization architecture (pilkwang/biohub-deepcenter-unet3d-center-prior-v1) as an auxiliary test-time spatial prior.
-- **Core Bioimage Libraries**: Powered by 	racksdata, geff, ilpy (SCIP Integer Linear Programming wrappers), zarr, and losc2.
+- **Base Tracking Engine & Pretrained Weights**: This pipeline adapts inference routines and neural checkpoint architectures (`pilkwang/biohub-tracking-support-pack-50ep-v1` and `pilkwang/biohub-temporal-unet3d-seed314159-v1`) under the MIT / Apache 2.0 open-source licenses.
+- **DeepCenter Prior**: Utilizes the 3D cell-center localization architecture (`pilkwang/biohub-deepcenter-unet3d-center-prior-v1`) as an auxiliary test-time spatial prior.
+- **Core Bioimage Libraries**: Powered by `tracksdata`, `geff`, `ilpy` (SCIP Integer Linear Programming wrappers), `zarr`, and `blosc2`.
 
 ### 2. Original Engineering & Methodological Contributions (Ayush Shukla)
-- **Un-strangled 3D Spindle Mitotic Formulation**: Formulated and implemented the relaxed cytokinesis geometry filter (DIV_MAX_COS_ANGLE = 0.50, sister separation cap $\le 16.0\,\mu\text{m}$, mother-daughter cap $\le 10.5\,\mu\text{m}$), which lifted macro Division Jaccard by **+78.0% relative** (.3125 \to 0.5563$, p = 0.03125$) across the 8-embryo validation cohort.
-- **Calibrated Neural Log-Odds Linker**: Replaced Euclidean distance-dominated assignment with an explicit logit-scaled edge cost function that balances learned neural affinity, anisotropic physical distance (.8\,\mu\text{m}$ search radius), and exponential moving average (EMA) velocity vectors.
-- **Metric Integrity Guard & Destructive Heuristic Removal**: Conducted empirical ablation demonstrating that multi-frame gap closing ( \to t+2, t+3$) and aggressive short-track filtering (MIN_TRACK_LEN >= 6) degrade bipartite matching precision by injecting spurious shortcut edges; disabled both in the submission configuration (ENABLE_GAP_CLOSING = False, MIN_TRACK_LEN = 1).
+- **Un-strangled 3D Spindle Mitotic Formulation**: Formulated and implemented the relaxed cytokinesis geometry filter (`DIV_MAX_COS_ANGLE = 0.50`, sister separation cap $\le 16.0\,\mu\text{m}$, mother-daughter cap $\le 10.5\,\mu\text{m}$), which lifted macro Division Jaccard by **+78.0% relative** ($0.3125 \to 0.5563, p = 0.03125$) across the 8-embryo validation cohort.
+- **Calibrated Neural Log-Odds Linker**: Replaced Euclidean distance-dominated assignment with an explicit logit-scaled edge cost function that balances learned neural affinity, anisotropic physical distance ($8.8\,\mu\text{m}$ search radius), and exponential moving average (EMA) velocity vectors.
+- **Metric Integrity Guard & Destructive Heuristic Removal**: Conducted empirical ablation demonstrating that multi-frame gap closing ($t \to t+2, t+3$) and aggressive short-track filtering (`MIN_TRACK_LEN >= 6`) degrade bipartite matching precision by injecting spurious shortcut edges; disabled both in the submission configuration (`ENABLE_GAP_CLOSING = False`, `MIN_TRACK_LEN = 1`).
 - **Bidirectional Harmonic Fusion**: Implemented dual-seed harmonic probability aggregation combining primary and secondary temporal UNet3D checkpoints.
-- **Physical Validation Suite & PPSWEEP**: Built the offline 8-embryo bipartite Hungarian validation harness (match_nodes_bipartite, {\text{match}} = 7.0\,\mu	ext{m}$) and the zero-overhead post-processing parameter sweep framework.
-
+- **Physical Validation Suite & PPSWEEP**: Built the offline 8-embryo bipartite Hungarian validation harness (`match_nodes_bipartite`, $R_{\text{match}} = 7.0\,\mu\text{m}$) and the zero-overhead post-processing parameter sweep framework.
 
 ---
-
-## 🤖 AI-Assisted Development & Engineering Tool Disclosure
-
-In accordance with transparent research and engineering practices:
-- **Development Tools**: Development and experimentation were conducted using Python, PyTorch, and Kaggle GPU notebook environments.
-- **AI Assistance**: LLM-assisted tools (ChatGPT and Antigravity) were utilized for modular code debugging, exploring mathematical formulations, refining test harnesses, reviewing documentation, and drafting explanatory text.
-- **Authorship & Integrity**: All experimental designs, tracking heuristics, validation logic, and metric evaluations were directed and verified by the author. No AI tool is listed as an author or collaborator.
-
 
 ## 📄 License
 
